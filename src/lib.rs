@@ -1,12 +1,19 @@
 #[derive(PartialEq, Debug)]
 pub enum Token {
-    Assign,     // =
-    Arrow,      // =>
-    Eq,         // ==
-    EqStrict,   // ===
+    Assign,   // =
+    Arrow,    // =>
+    Eq,       // ==
+    EqStrict, // ===
+
+    Lt,        // <
+    Lte,       // <=
+    Shl,       // <<
+    ShlAssign, // <<=
+
     Whitespace, // Any whitespace except newlines, "spacebar", tabs etc
-    Eof,        // End of file
-    Unknown,    // Fallback for unhandled / unexpected / unknown input
+
+    Eof,     // End of file
+    Unknown, // Fallback for unhandled / unexpected / unknown input
 }
 
 use Token::*;
@@ -36,6 +43,10 @@ impl<'a> Lexer<'a> {
             Some('=') => {
                 let next = self.chars.next();
                 self.match_assign(next);
+            }
+            Some('<') => {
+                let next = self.chars.next();
+                self.match_lt(next);
             }
             Some(' ') => {
                 self.tokens.push(Whitespace);
@@ -82,6 +93,38 @@ impl<'a> Lexer<'a> {
             }
         }
     }
+
+    fn match_lt(&mut self, c: Option<char>) -> () {
+        match c {
+            Some('=') => {
+                self.tokens.push(Lte);
+                let next = self.chars.next();
+                self.match_any_char(next);
+            }
+            Some('<') => {
+                let next = self.chars.next();
+                return self.match_shl(next);
+            }
+            _ => {
+                self.tokens.push(Lt);
+                self.match_any_char(c);
+            }
+        }
+    }
+
+    fn match_shl(&mut self, c: Option<char>) -> () {
+        match c {
+            Some('=') => {
+                self.tokens.push(ShlAssign);
+                let next = self.chars.next();
+                self.match_any_char(next);
+            }
+            _ => {
+                self.tokens.push(Shl);
+                self.match_any_char(c);
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -112,10 +155,12 @@ mod tests {
     fn unknown() {
         assert_eq!(Lexer::get_tokens("ä"), vec![Unknown, Eof]);
     }
+
     #[test]
     fn eof() {
         assert_eq!(Lexer::get_tokens(""), vec![Eof]);
     }
+
     #[test]
     fn whitespace() {
         assert_eq!(Lexer::get_tokens(" "), vec![Whitespace, Eof]);
@@ -124,5 +169,25 @@ mod tests {
     #[test]
     fn assign_and_whitespace() {
         assert_eq!(Lexer::get_tokens("= "), vec![Assign, Whitespace, Eof]);
+    }
+
+    #[test]
+    fn lt() {
+        assert_eq!(Lexer::get_tokens("<"), vec![Lt, Eof]);
+    }
+
+    #[test]
+    fn lte() {
+        assert_eq!(Lexer::get_tokens("<="), vec![Lte, Eof]);
+    }
+
+    #[test]
+    fn shl() {
+        assert_eq!(Lexer::get_tokens("<<"), vec![Shl, Eof]);
+    }
+
+    #[test]
+    fn shlassign() {
+        assert_eq!(Lexer::get_tokens("<<="), vec![ShlAssign, Eof]);
     }
 }
