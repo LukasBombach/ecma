@@ -33,7 +33,7 @@ impl<'a> Lexer<'a> {
 
     pub fn get_tokens(input: &'a str) -> std::vec::Vec<Token> {
         let mut lexer = Lexer::new(input);
-        lexer.match_next_char();
+        lexer.match_next();
         lexer.tokens
     }
 }
@@ -46,12 +46,12 @@ impl<'a> Lexer<'a> {
 
     fn push_and_match_next(&mut self, token: Token) -> () {
         self.tokens.push(token);
-        self.match_next_char();
+        self.match_next();
     }
 }
 
 impl<'a> Lexer<'a> {
-    fn match_next_char(&mut self) -> () {
+    fn match_next(&mut self) -> () {
         let next = self.chars.next();
         self.match_char(next);
     }
