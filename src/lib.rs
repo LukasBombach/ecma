@@ -172,6 +172,14 @@ mod tests {
     }
 
     #[test]
+    fn multiple_tokens_of_different_lengths() {
+        assert_eq!(
+            Lexer::get_tokens("=> <<= = <<"),
+            vec![Arrow, Whitespace, ShlAssign, Whitespace, Assign, Whitespace, Shl, Eof]
+        );
+    }
+
+    #[test]
     fn lt() {
         assert_eq!(Lexer::get_tokens("<"), vec![Lt, Eof]);
     }
