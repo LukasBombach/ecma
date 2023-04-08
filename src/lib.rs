@@ -39,6 +39,18 @@ impl<'a> Lexer<'a> {
 }
 
 impl<'a> Lexer<'a> {
+    fn push_and_match(&mut self, token: Token, c: Option<char>) -> () {
+        self.tokens.push(token);
+        self.match_char(c);
+    }
+
+    fn push_and_match_next(&mut self, token: Token) -> () {
+        self.tokens.push(token);
+        self.match_next_char();
+    }
+}
+
+impl<'a> Lexer<'a> {
     fn match_next_char(&mut self) -> () {
         let next = self.chars.next();
         self.match_char(next);
@@ -55,13 +67,11 @@ impl<'a> Lexer<'a> {
                 self.match_lt(next);
             }
             Some(' ') => {
-                self.tokens.push(Whitespace);
-                self.match_next_char();
+                self.push_and_match_next(Whitespace);
             }
             None => self.tokens.push(Eof),
             _ => {
-                self.tokens.push(Unknown);
-                self.match_next_char();
+                self.push_and_match_next(Unknown);
             }
         }
     }
@@ -72,15 +82,13 @@ impl<'a> Lexer<'a> {
         match c {
             Some('=') => {
                 let next = self.chars.next();
-                return self.match_eq(next);
+                self.match_eq(next);
             }
             Some('>') => {
-                self.tokens.push(Arrow);
-                self.match_next_char();
+                self.push_and_match_next(Arrow);
             }
             _ => {
-                self.tokens.push(Assign);
-                self.match_char(c);
+                self.push_and_match(Assign, c);
             }
         }
     }
@@ -88,12 +96,10 @@ impl<'a> Lexer<'a> {
     fn match_eq(&mut self, c: Option<char>) -> () {
         match c {
             Some('=') => {
-                self.tokens.push(EqStrict);
-                self.match_next_char();
+                self.push_and_match_next(EqStrict);
             }
             _ => {
-                self.tokens.push(Eq);
-                self.match_char(c);
+                self.push_and_match(Eq, c);
             }
         }
     }
@@ -103,16 +109,14 @@ impl<'a> Lexer<'a> {
     fn match_lt(&mut self, c: Option<char>) -> () {
         match c {
             Some('=') => {
-                self.tokens.push(Lte);
-                self.match_next_char();
+                self.push_and_match_next(Lte);
             }
             Some('<') => {
                 let next = self.chars.next();
-                return self.match_shl(next);
+                self.match_shl(next);
             }
             _ => {
-                self.tokens.push(Lt);
-                self.match_char(c);
+                self.push_and_match(Lt, c);
             }
         }
     }
@@ -120,12 +124,10 @@ impl<'a> Lexer<'a> {
     fn match_shl(&mut self, c: Option<char>) -> () {
         match c {
             Some('=') => {
-                self.tokens.push(ShlAssign);
-                self.match_next_char();
+                self.push_and_match_next(ShlAssign);
             }
             _ => {
-                self.tokens.push(Shl);
-                self.match_char(c);
+                self.push_and_match(Shl, c);
             }
         }
     }
