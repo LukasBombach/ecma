@@ -24,9 +24,11 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn match_tokens(&mut self) -> () {
-        let next = self.chars.next();
-        self.match_any_char(next);
+    pub fn get_tokens(input: &'a str) -> std::vec::Vec<Token> {
+        let mut lexer = Lexer::new(input);
+        let next = lexer.chars.next();
+        lexer.match_any_char(next);
+        lexer.tokens
     }
 
     fn match_any_char(&mut self, c: Option<char>) -> () {
@@ -88,57 +90,39 @@ mod tests {
 
     #[test]
     fn assign() {
-        let mut lexer = Lexer::new("=");
-        lexer.match_tokens();
-        assert_eq!(lexer.tokens, vec![Assign, Eof]);
+        assert_eq!(Lexer::get_tokens("="), vec![Assign, Eof]);
     }
 
     #[test]
     fn arrow() {
-        let mut lexer = Lexer::new("=>");
-        lexer.match_tokens();
-        assert_eq!(lexer.tokens, vec![Arrow, Eof]);
+        assert_eq!(Lexer::get_tokens("=>"), vec![Arrow, Eof]);
     }
 
     #[test]
     fn eq() {
-        let mut lexer = Lexer::new("==");
-        lexer.match_tokens();
-        assert_eq!(lexer.tokens, vec![Eq, Eof]);
+        assert_eq!(Lexer::get_tokens("=="), vec![Eq, Eof]);
     }
 
     #[test]
     fn eq_strict() {
-        let mut lexer = Lexer::new("===");
-        lexer.match_tokens();
-        assert_eq!(lexer.tokens, vec![EqStrict, Eof]);
+        assert_eq!(Lexer::get_tokens("==="), vec![EqStrict, Eof]);
     }
 
     #[test]
     fn unknown() {
-        let mut lexer = Lexer::new("_");
-        lexer.match_tokens();
-        assert_eq!(lexer.tokens, vec![Unknown, Eof]);
+        assert_eq!(Lexer::get_tokens("ä"), vec![Unknown, Eof]);
     }
-
     #[test]
     fn eof() {
-        let mut lexer = Lexer::new("");
-        lexer.match_tokens();
-        assert_eq!(lexer.tokens, vec![Eof]);
+        assert_eq!(Lexer::get_tokens(""), vec![Eof]);
     }
-
     #[test]
     fn whitespace() {
-        let mut lexer = Lexer::new(" ");
-        lexer.match_tokens();
-        assert_eq!(lexer.tokens, vec![Whitespace, Eof]);
+        assert_eq!(Lexer::get_tokens(" "), vec![Whitespace, Eof]);
     }
 
     #[test]
     fn assign_and_whitespace() {
-        let mut lexer = Lexer::new("= ");
-        lexer.match_tokens();
-        assert_eq!(lexer.tokens, vec![Assign, Whitespace, Eof]);
+        assert_eq!(Lexer::get_tokens("= "), vec![Assign, Whitespace, Eof]);
     }
 }
