@@ -33,12 +33,18 @@ impl<'a> Lexer<'a> {
 
     pub fn get_tokens(input: &'a str) -> std::vec::Vec<Token> {
         let mut lexer = Lexer::new(input);
-        let next = lexer.chars.next();
-        lexer.match_any_char(next);
+        lexer.match_next_char();
         lexer.tokens
     }
+}
 
-    fn match_any_char(&mut self, c: Option<char>) -> () {
+impl<'a> Lexer<'a> {
+    fn match_next_char(&mut self) -> () {
+        let next = self.chars.next();
+        self.match_char(next);
+    }
+
+    fn match_char(&mut self, c: Option<char>) -> () {
         match c {
             Some('=') => {
                 let next = self.chars.next();
@@ -50,18 +56,18 @@ impl<'a> Lexer<'a> {
             }
             Some(' ') => {
                 self.tokens.push(Whitespace);
-                let next = self.chars.next();
-                self.match_any_char(next);
+                self.match_next_char();
             }
             None => self.tokens.push(Eof),
             _ => {
                 self.tokens.push(Unknown);
-                let next = self.chars.next();
-                self.match_any_char(next);
+                self.match_next_char();
             }
         }
     }
+}
 
+impl<'a> Lexer<'a> {
     fn match_assign(&mut self, c: Option<char>) -> () {
         match c {
             Some('=') => {
@@ -70,12 +76,11 @@ impl<'a> Lexer<'a> {
             }
             Some('>') => {
                 self.tokens.push(Arrow);
-                let next = self.chars.next();
-                self.match_any_char(next);
+                self.match_next_char();
             }
             _ => {
                 self.tokens.push(Assign);
-                self.match_any_char(c);
+                self.match_char(c);
             }
         }
     }
@@ -84,22 +89,22 @@ impl<'a> Lexer<'a> {
         match c {
             Some('=') => {
                 self.tokens.push(EqStrict);
-                let next = self.chars.next();
-                self.match_any_char(next);
+                self.match_next_char();
             }
             _ => {
                 self.tokens.push(Eq);
-                self.match_any_char(c);
+                self.match_char(c);
             }
         }
     }
+}
 
+impl<'a> Lexer<'a> {
     fn match_lt(&mut self, c: Option<char>) -> () {
         match c {
             Some('=') => {
                 self.tokens.push(Lte);
-                let next = self.chars.next();
-                self.match_any_char(next);
+                self.match_next_char();
             }
             Some('<') => {
                 let next = self.chars.next();
@@ -107,7 +112,7 @@ impl<'a> Lexer<'a> {
             }
             _ => {
                 self.tokens.push(Lt);
-                self.match_any_char(c);
+                self.match_char(c);
             }
         }
     }
@@ -116,12 +121,11 @@ impl<'a> Lexer<'a> {
         match c {
             Some('=') => {
                 self.tokens.push(ShlAssign);
-                let next = self.chars.next();
-                self.match_any_char(next);
+                self.match_next_char();
             }
             _ => {
                 self.tokens.push(Shl);
-                self.match_any_char(c);
+                self.match_char(c);
             }
         }
     }
